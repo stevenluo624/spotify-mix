@@ -135,6 +135,16 @@ spotify-mix/
 └── .gitignore
 ```
 
+## Known Limitations
+
+**Spotify removed access to audio features for new apps (November 2024)**
+
+The `/v1/audio-features` endpoint — which provides BPM, key, and mode — is no longer accessible to Spotify Developer apps created after November 27, 2024. This is an API-level restriction that affects all new apps regardless of account type or user permissions.
+
+As a result, the harmonic mixing algorithms cannot currently run against the live Spotify API. The planned fix is to replace the `audio-features` call with the [GetSongBPM API](https://getsongbpm.com/api), which provides equivalent BPM and key data with a free tier of 500 requests/day. Track feature results will be cached locally in SQLite so each track is only looked up once.
+
+If your app was created before November 27, 2024, the existing `fetch_audio_features` call in `src/spotify_client.py` will work as-is.
+
 ## How Harmonic Distance Works
 
 Spotify reports each track's key as an integer (0 = C … 11 = B) and mode (0 = minor, 1 = major). These are converted to Camelot positions — numbers 1–12 on a circle of fifths, suffixed `A` (minor) or `B` (major).

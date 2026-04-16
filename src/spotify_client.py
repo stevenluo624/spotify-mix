@@ -62,13 +62,19 @@ def fetch_playlist_tracks(
     playlist_name: str = meta["name"]
 
     tracks: list[dict] = []
-    results = sp.playlist_tracks(playlist_id)
+    results = sp.playlist_items(
+        playlist_id,
+        additional_types=["track"],
+        market="from_token",
+    )
 
     while results:
         for item in results.get("items", []):
-            track = item.get("track")
-            if not track or not track.get("id"):
-                continue   # local file or removed track
+            # playlist_items() puts the track object under "item";
+            # fall back to "track" for any older response shapes.
+            track = item.get("item") or item.get("track")
+            if not track or not track.get("id") or track.get("type") == "episode":
+                continue
             tracks.append(
                 {
                     "id":     track["id"],
